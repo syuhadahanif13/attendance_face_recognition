@@ -47,10 +47,6 @@ l3.grid(column=0, row=2)
 t3=tk.Entry(window,width=50,bd=5)
 t3.grid(column=1, row=2)
 
-l4=tk.Label(window,text="Email",font=("Algerian",20))
-l4.grid(column=0, row=3)
-t4=tk.Entry(window,width=50,bd=5)
-t4.grid(column=1, row=3)
 
 
 l5=tk.Label(window,text="Subject code",font=("Algerian",20))
@@ -410,14 +406,14 @@ b2=tk.Button(window,text="Training Dataset",font=("Algerian",20),bg='orange',fg=
 b2.place(x=10,y=240)
         
 def generate_dataset():
-    regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+   # regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
   
   
     
     if(t1.get()=="" or t2.get()=="" or t3.get()=="" or t5.get()==""):
         messagebox.showinfo('Result','Please provide complete details of the user')
     else:
-        if(re.search(regex_email,t4.get())):
+        if(t1.get()):
             
             mydb=mysql.connector.connect(
                 host="localhost",
