@@ -47,7 +47,10 @@ l3.grid(column=0, row=2)
 t3=tk.Entry(window,width=50,bd=5)
 t3.grid(column=1, row=2)
 
-
+l4=tk.Label(window,text="Email",font=("Algerian",20))
+l4.grid(column=0, row=3)
+t4=tk.Entry(window,width=50,bd=5)
+t4.grid(column=1, row=3)
 
 l5=tk.Label(window,text="Subject code",font=("Algerian",20))
 l5.grid(column=0, row=4)
@@ -343,17 +346,17 @@ def checking_attendance():
                     
                     blinking_ratio = (left_eye_ratio+right_eye_ratio)/2
                     
-                    if(blinking_ratio < 10):
-                        cv2.putText(img, "Terdeteksi", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0))
-                        print("Wajah Terdeteksi")
+                    if(blinking_ratio >= 6):
+                        cv2.putText(img, "blinking", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0))
+                        print("blinking")
                         
                         img = recognize(img,clf,faceCascade)
                     
-                   # elif((blinking_ratio < 6) and (delta>30)):
-                    #    print("No blink detect")
-                     #   print("Fake image----")
-                      #  messagebox.showerror('Error','-------Fake image-------')
-                       # print("____________________________________")
+                    elif((blinking_ratio < 6) and (delta>30)):
+                        print("No blink detect")
+                        print("Fake image----")
+                        messagebox.showerror('Error','-------Fake image-------')
+                        print("____________________________________")
                         call_var()
                         
                 cv2.imshow("face detection",img)
@@ -406,14 +409,12 @@ b2=tk.Button(window,text="Training Dataset",font=("Algerian",20),bg='orange',fg=
 b2.place(x=10,y=240)
         
 def generate_dataset():
-   # regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-  
-  
+    regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
     
-    if(t1.get()=="" or t2.get()=="" or t3.get()=="" or t5.get()==""):
+    if(t1.get()=="" or t2.get()=="" or t3.get()=="" or t4.get()=="" or t5.get()==""):
         messagebox.showinfo('Result','Please provide complete details of the user')
     else:
-        if(t1.get()):
+        if(re.search(regex_email,t4.get())):
             
             mydb=mysql.connector.connect(
                 host="localhost",
@@ -454,7 +455,7 @@ def generate_dataset():
             values = ', '.join(str(v) for v in list_of_id)
 
             sql="INSERT INTO student_table(id_stu,first_name,last_name,student_number,email,class_list) values(%s,%s,%s,%s,%s,%s)"
-            val=(id_stu,t1.get(),t2.get(),t3.get(),values)
+            val=(id_stu,t1.get(),t2.get(),t3.get(),t4.get(),values)
             mycursor.execute(sql,val)
             
             id_login=1
@@ -463,8 +464,8 @@ def generate_dataset():
                 
             md5_digest = hashlib.md5(t3.get().encode('utf-8')).hexdigest()
                 
-            query="INSERT INTO login_table(id_login,fname,lname,username,password,userlevel) values(%s,%s,%s,%s,%s,%s,%s)"
-            value=(id_login,t1.get(),t2.get(),t3.get(),md5_digest,"student")
+            query="INSERT INTO login_table(id_login,fname,lname,username,password,email,userlevel) values(%s,%s,%s,%s,%s,%s,%s)"
+            value=(id_login,t1.get(),t2.get(),t3.get(),md5_digest,t4.get(),"student")
             mycursor3.execute(query,value)
             
             mydb.commit()
@@ -535,12 +536,8 @@ def generate_dataset():
         
                 messagebox.showinfo('Result','Registration completed!!!')
                 
-                # send mail at here   
-                mycursor4=mydb.cursor()
-                mycursor4.execute("select email from student_table WHERE id_stu="+str(id))
-                email = mycursor4.fetchone()
-                email = ''+''.join(email) 
-                to = email
+                # send mail at here    
+                to = t4.get()
                 gmail_user = 'attendancesystembku@gmail.com'
                 gmail_pwd = '!attendancesystem'
                 smtpserver = smtplib.SMTP("smtp.gmail.com",587)
