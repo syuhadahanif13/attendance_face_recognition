@@ -48,9 +48,6 @@ t3=tk.Entry(window,width=50,bd=5)
 t3.grid(column=1, row=2)
 
 
-t4=tk.Entry
-
-
 l5=tk.Label(window,text="Subject code",font=("Algerian",20))
 l5.grid(column=0, row=4)
 t5=tk.Entry(window,width=50,bd=5)
@@ -408,9 +405,10 @@ b2=tk.Button(window,text="Training Dataset",font=("Algerian",20),bg='orange',fg=
 b2.place(x=10,y=240)
         
 def generate_dataset():
-    regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    #regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+  
     
-    if(t1.get()=="" or t2.get()=="" or t3.get()==""  or t5.get()==""):
+    if(t1.get()=="" or t2.get()=="" or t3.get()=="" or t5.get()==""):
         messagebox.showinfo('Result','Please provide complete details of the user')
     else:
         if(re.search(t1.get())):
@@ -535,8 +533,12 @@ def generate_dataset():
         
                 messagebox.showinfo('Result','Registration completed!!!')
                 
-                # send mail at here    
-                to = t4.get()
+                # send mail at here   
+                mycursor4=mydb.cursor()
+                mycursor4.execute("select email from student_table WHERE id_stu="+str(id))
+                email = mycursor4.fetchone()
+                email = ''+''.join(email) 
+                to = email
                 gmail_user = 'attendancesystembku@gmail.com'
                 gmail_pwd = '!attendancesystem'
                 smtpserver = smtplib.SMTP("smtp.gmail.com",587)
