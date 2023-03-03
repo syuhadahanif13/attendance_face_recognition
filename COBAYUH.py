@@ -47,11 +47,6 @@ l3.grid(column=0, row=2)
 t3=tk.Entry(window,width=50,bd=5)
 t3.grid(column=1, row=2)
 
-l4=tk.Label(window,text="Email",font=("Algerian",20))
-l4.grid(column=0, row=3)
-t4=tk.Entry(window,width=50,bd=5)
-t4.grid(column=1, row=3)
-
 l5=tk.Label(window,text="Subject code",font=("Algerian",20))
 l5.grid(column=0, row=4)
 t5=tk.Entry(window,width=50,bd=5)
@@ -300,7 +295,7 @@ def checking_attendance():
                         else:
                             # Check card
                             if (s2 == str(id_card)):
-                                print("Case 1: Face exists in database and compatible with RFID")
+                                print("Case 1: Wajah tersedia di Database dan Cocok dengan RFID")
                                 check_timetable_and_sendmail()
                                 call_var()
                                     
@@ -346,16 +341,15 @@ def checking_attendance():
                     
                     blinking_ratio = (left_eye_ratio+right_eye_ratio)/2
                     
-                    if(blinking_ratio >= 6):
-                        cv2.putText(img, "blinking", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0))
-                        print("blinking")
+                    if(blinking_ratio < 6):
+                        cv2.putText(img, "terdeteksi", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0))
+                        print("wajah terdeteksi")
                         
                         img = recognize(img,clf,faceCascade)
                     
-                    elif((blinking_ratio < 6) and (delta>30)):
-                        print("No blink detect")
-                        print("Fake image----")
-                        messagebox.showerror('Error','-------Fake image-------')
+                    elif(blinking_ratio > 6) :
+                        print("error")
+                        messagebox.showerror('Error')
                         print("____________________________________")
                         call_var()
                         
@@ -410,11 +404,12 @@ b2.place(x=10,y=240)
         
 def generate_dataset():
     regex_email = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    regex_name='^[a-zA-Z][0-9a-zA-Z .,-]*$'
     
-    if(t1.get()=="" or t2.get()=="" or t3.get()=="" or t4.get()=="" or t5.get()==""):
+    if(t1.get()=="" or t2.get()=="" or t3.get()==""  or t5.get()==""):
         messagebox.showinfo('Result','Please provide complete details of the user')
     else:
-        if(re.search(regex_email,t4.get())):
+        if(re.search(regex_name,t1.get())):
             
             mydb=mysql.connector.connect(
                 host="localhost",
@@ -454,8 +449,8 @@ def generate_dataset():
             
             values = ', '.join(str(v) for v in list_of_id)
 
-            sql="INSERT INTO student_table(id_stu,first_name,last_name,student_number,email,class_list) values(%s,%s,%s,%s,%s,%s)"
-            val=(id_stu,t1.get(),t2.get(),t3.get(),t4.get(),values)
+            sql="INSERT INTO student_table(id_stu,first_name,last_name,student_number,class_list) values(%s,%s,%s,%s,%s)"
+            val=(id_stu,t1.get(),t2.get(),t3.get(),values)
             mycursor.execute(sql,val)
             
             id_login=1
@@ -464,8 +459,8 @@ def generate_dataset():
                 
             md5_digest = hashlib.md5(t3.get().encode('utf-8')).hexdigest()
                 
-            query="INSERT INTO login_table(id_login,fname,lname,username,password,email,userlevel) values(%s,%s,%s,%s,%s,%s,%s)"
-            value=(id_login,t1.get(),t2.get(),t3.get(),md5_digest,t4.get(),"student")
+            query="INSERT INTO login_table(id_login,fname,lname,username,password,userlevel) values(%s,%s,%s,%s,%s,%s)"
+            value=(id_login,t1.get(),t2.get(),t3.get(),md5_digest,"student")
             mycursor3.execute(query,value)
             
             mydb.commit()
@@ -523,7 +518,11 @@ def generate_dataset():
 
 
             mycursor.execute("SELECT * FROM student_table")
-            myresult=mycursor.fetchall()
+
+           
+            mycursor.execute("select email from student_table WHERE id_stu="+str(id))
+            email = mycursor.fetchone()
+            email = ''+''.join(email)
 
             try:
                 id_card, text = reader.read()
@@ -536,8 +535,9 @@ def generate_dataset():
         
                 messagebox.showinfo('Result','Registration completed!!!')
                 
+                
                 # send mail at here    
-                to = t4.get()
+                to = email
                 gmail_user = 'attendancesystembku@gmail.com'
                 gmail_pwd = '!attendancesystem'
                 smtpserver = smtplib.SMTP("smtp.gmail.com",587)
