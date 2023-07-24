@@ -343,7 +343,7 @@ def checking_attendance():
                     
                     if(blinking_ratio < 6):
                         cv2.putText(img, "terdeteksi", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,0,0))
-                        print("wajah terdeteksi")
+                        print("wajah terdeteksi bos")
                         
                         img = recognize(img,clf,faceCascade)
                     
